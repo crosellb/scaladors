@@ -1,34 +1,36 @@
-object Main {
-  def main(args: Array[String]): Unit =
-    val zona1 = new Zona(List("CP1", "CP2"), new Repartidor("Ana", "Coche"))
-    val zona2 = new Zona(List("CP3", "CP4"), new Repartidor("Lucas", "Furgoneta"))
+object Main extends App {
+  // Creamos los repartidores Ana y Lucas con sus respectivas zonas y rangos de peso
+  val ana = new Repartidor(
+    nombre = "Ana",
+    zonas = List(new Zona(List("CP1", "CP2"))),
+    minPeso = 0.0,
+    maxPeso = 2.0
+  )
 
-    val paquete1 = new Paquete("CP1", 1.5, "En transito")
-    val paquete2 = new Paquete("CP3", 3.5, "En transito")
+  val lucas = new Repartidor(
+    nombre = "Lucas",
+    zonas = List(new Zona(List("CP3", "CP4"))),
+    minPeso = 2.0 + Double.MinPositiveValue,
+    maxPeso = Double.PositiveInfinity
+  )
 
-    zona1.asignarPaquete(paquete1)
-    zona2.asignarPaquete(paquete2)
+  // Creamos la empresa de paquetería
+  val empresa = new EmpresaPaqueteria(List(ana, lucas))
 
-    asignarVehiculo(paquete1, zona1, zona2)
-    asignarVehiculo(paquete2, zona1, zona2)
+  // Creamos algunos paquetes
+  val paquete1 = Paquete(id = "1", peso = 1.5, codigoPostal = "CP1", dniCliente = "12345678A")
+  val paquete2 = Paquete(id = "2", peso = 2.5, codigoPostal = "CP3", dniCliente = "87654321B")
+  val paquete3 = Paquete(id = "3", peso = 0.5, codigoPostal = "CP2", dniCliente = "23456789C")
+  val paquete4 = Paquete(id = "4", peso = 3.5, codigoPostal = "CP4", dniCliente = "98765432D")
 
-    println("Estado de entrega de paquete 1: " + paquete1.estadoEntrega)
-    println("Fecha y hora de entrega de paquete 1: " + paquete1.fechaHoraEntrega.getOrElse("No entregado"))
-    println("Codigo de envio de paquete 1: " + paquete1.codigoEnvio.getOrElse("No entregado"))
+  // Los paquetes son recibidos por la empresa
+  empresa.recibirPaquetes(List(paquete1, paquete2, paquete3, paquete4))
 
-    println("Estado de entrega de paquete 2: " + paquete2.estadoEntrega)
-    println("Fecha y hora de entrega de paquete 2: " + paquete2.fechaHoraEntrega.getOrElse("No entregado"))
-    println("Codigo de envio de paquete 2: " + paquete2.codigoEnvio.getOrElse("No entregado"))
+  // Ahora vamos a entregar algunos paquetes
+  ana.entregarPaquete("1", "Firma Cliente 1")
+  lucas.entregarPaquete("2", "Firma Cliente 2")
 
-
-  def getCategoriaPeso(paquete: Paquete): String = {
-    if (paquete.peso > 2) "Categoría 1" else "Categoría 2"
-  }
-
-  def asignarVehiculo(paquete: Paquete, zona1: Zona, zona2: Zona): Unit = {
-    getCategoriaPeso(paquete) match {
-      case "Categoría 1" => zona1.repartidor.entregarPaquete(paquete)
-      case "Categoría 2" => zona2.repartidor.entregarPaquete(paquete)
-    }
-  }
+  // Finalmente, mostramos los paquetes que no se han entregado aún
+  val paquetesNoEntregados = empresa.obtenerPaquetesNoEntregados
+  println(s"Paquetes no entregados: $paquetesNoEntregados")
 }

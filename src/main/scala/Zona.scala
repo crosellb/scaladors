@@ -1,0 +1,1 @@
+case class Zona(codigosPostales: List[String])
